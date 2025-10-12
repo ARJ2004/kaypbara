@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { router, publicProcedure, protectedProcedure } from '../trpc'
 import { users, insertUserSchema } from '@/server/db/schema'
 import { eq } from 'drizzle-orm'
+import { ensureUserInDatabase } from '@/lib/auth-utils'
 
 export const userRouter = router({
   // Get current user
@@ -24,7 +25,7 @@ export const userRouter = router({
 
   // Create or update user
   upsertUser: publicProcedure
-    .input(insertUserSchema)
+    .input(insertUserSchema.optional())
     .mutation(async ({ ctx, input }) => {
       const { data: { user } } = await ctx.supabase.auth.getUser()
       
@@ -32,39 +33,8 @@ export const userRouter = router({
         throw new Error('User not authenticated')
       }
 
-      // Check if user exists
-      const existingUser = await ctx.db
-        .select()
-        .from(users)
-        .where(eq(users.id, user.id))
-        .limit(1)
-
-      if (existingUser.length > 0) {
-        // Update existing user
-        const [updatedUser] = await ctx.db
-          .update(users)
-          .set({
-            ...input,
-            updatedAt: new Date(),
-          })
-          .where(eq(users.id, user.id))
-          .returning()
-
-        return updatedUser
-      } else {
-        // Create new user
-        const [newUser] = await ctx.db
-          .insert(users)
-          .values({
-            id: user.id,
-            email: user.email!,
-            fullName: user.user_metadata?.full_name || null,
-            avatarUrl: user.user_metadata?.avatar_url || null,
-          })
-          .returning()
-
-        return newUser
-      }
+      // Use the utility function to ensure user exists
+      return await ensureUserInDatabase(user)
     }),
 
   // Get user by ID

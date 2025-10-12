@@ -1,8 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { db } from '@/server/db'
-import { users } from '@/server/db/schema'
-import { eq } from 'drizzle-orm'
+import { ensureUserInDatabase } from '@/lib/auth-utils'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -10,36 +8,30 @@ export async function GET(request: Request) {
   // if "next" is in param, use it as the redirect URL
   const next = searchParams.get('next') ?? '/dashboard'
 
+  console.log('Auth callback called with code:', !!code)
+
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    
     if (!error) {
+      console.log('Auth exchange successful')
       // Get the authenticated user
       const { data: { user } } = await supabase.auth.getUser()
       
       if (user) {
-        // Check if user exists in our database
+        console.log('User found:', user.id, user.email)
         try {
-          const existingUser = await db
-            .select()
-            .from(users)
-            .where(eq(users.id, user.id))
-            .limit(1)
-
-          // If user doesn't exist in our database, create them
-          if (existingUser.length === 0) {
-            await db.insert(users).values({
-              id: user.id,
-              email: user.email!,
-              fullName: user.user_metadata?.full_name || null,
-              avatarUrl: user.user_metadata?.avatar_url || null,
-            })
-          }
+          // Ensure user exists in our database
+          const dbUser = await ensureUserInDatabase(user)
+          console.log('User ensured in database:', dbUser?.id)
         } catch (dbError) {
           console.error('Error ensuring user exists in database:', dbError)
           // Continue with redirect even if user creation fails
           // The user can still use the app, and we can retry later
         }
+      } else {
+        console.log('No user found after auth exchange')
       }
 
       const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
@@ -52,6 +44,8 @@ export async function GET(request: Request) {
       } else {
         return NextResponse.redirect(`${origin}${next}`)
       }
+    } else {
+      console.error('Auth exchange error:', error)
     }
   }
 

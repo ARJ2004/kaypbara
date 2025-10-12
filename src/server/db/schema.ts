@@ -40,7 +40,6 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 // Zod schemas
 export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
   createdAt: true,
   updatedAt: true,
 });
