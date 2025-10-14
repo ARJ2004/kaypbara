@@ -7,6 +7,8 @@ import { ArrowLeft, Calendar, Clock } from 'lucide-react';
 import { trpc } from '@/lib/trpc/client';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 
 export default function PostPage() {
   const params = useParams();
@@ -91,7 +93,21 @@ export default function PostPage() {
 
           {/* Post Content */}
           <div className="prose prose-lg max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[
+                rehypeRaw,
+                [rehypeSanitize, {
+                  ...defaultSchema,
+                  tagNames: [...(defaultSchema.tagNames || []), 'u'],
+                  attributes: {
+                    ...(defaultSchema.attributes || {}),
+                    a: ['href', 'title', 'target', 'rel'],
+                    img: ['src', 'alt', 'title', 'width', 'height'],
+                  },
+                }],
+              ]}
+            >
               {post.content}
             </ReactMarkdown>
           </div>

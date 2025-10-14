@@ -50,7 +50,7 @@ export async function ensureUserInDatabase(user: any) {
         .returning()
 
       console.log('User updated in database:', user.id)
-      return updatedUser[0]
+      return updatedUser
     }
   } catch (error) {
     console.error('Error ensuring user exists in database:', error)
