@@ -222,8 +222,12 @@ export default function NewPostPage() {
                           ...rest,
                           ref: (el: HTMLTextAreaElement) => {
                             contentRef.current = el
-                            // @ts-expect-error - RHF ref signature
-                            ref(el)
+                            if (typeof ref === 'function') {
+                              ref(el)
+                            } else if (ref) {
+                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                              (ref as any).current = el
+                            }
                           },
                         }
                       })()}
