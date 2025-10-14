@@ -169,7 +169,13 @@ export default function NewPostPage() {
       setIsUploadingImage(true)
       const supabase = createSupabaseClient()
       const { data: { user } } = await supabase.auth.getUser()
-      const userId = user?.id ?? 'anonymous'
+      if (!user) {
+        setSubmitError('Please sign in to upload images')
+        // Optionally navigate to login
+        // router.push('/login')
+        return
+      }
+      const userId = user.id
       const filePath = `${userId}/${Date.now()}-${file.name}`
       const { error: uploadError } = await supabase.storage
         .from('post-images')
