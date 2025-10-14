@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -27,6 +27,7 @@ type PostFormData = z.infer<typeof postFormSchema>
 export default function NewPostPage() {
   const router = useRouter()
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const contentRef = useRef<HTMLTextAreaElement | null>(null)
 
   const { data: categories, isLoading: isLoadingCategories } = trpc.category.getAll.useQuery()
 
@@ -60,6 +61,7 @@ export default function NewPostPage() {
   })
 
   const selectedCategoryIds = watch('categoryIds')
+  const contentValue = watch('content')
 
   const toggleCategory = useCallback(
     (categoryId: string) => {
@@ -84,6 +86,71 @@ export default function NewPostPage() {
       categoryIds: data.categoryIds,
       published: publish,
     })
+  }
+
+  const applyWrap = (before: string, after: string, placeholder: string) => {
+    const el = contentRef.current
+    const value = contentValue || ''
+    if (!el) {
+      setValue('content', `${value}${before}${placeholder}${after}`, { shouldValidate: true })
+      return
+    }
+    const start = el.selectionStart ?? value.length
+    const end = el.selectionEnd ?? value.length
+    const selected = value.slice(start, end) || placeholder
+    const newText = value.slice(0, start) + before + selected + after + value.slice(end)
+    const newStart = start + before.length
+    const newEnd = newStart + selected.length
+    setValue('content', newText, { shouldValidate: true })
+    requestAnimationFrame(() => {
+      el.focus()
+      el.setSelectionRange(newStart, newEnd)
+    })
+  }
+
+  const handleBold = () => applyWrap('**', '**', 'bold text')
+  const handleItalic = () => applyWrap('*', '*', 'italic text')
+  const handleUnderline = () => applyWrap('<u>', '</u>', 'underlined text')
+  const handleLink = () => {
+    const url = typeof window !== 'undefined' ? window.prompt('Enter URL') : ''
+    if (!url) return
+    const el = contentRef.current
+    const value = contentValue || ''
+    const start = el?.selectionStart ?? value.length
+    const end = el?.selectionEnd ?? value.length
+    const selected = value.slice(start, end) || 'link text'
+    const before = '['
+    const middle = selected
+    const after = `](${url})`
+    const newText = value.slice(0, start) + before + middle + after + value.slice(end)
+    const newStart = start + before.length
+    const newEnd = newStart + middle.length
+    setValue('content', newText, { shouldValidate: true })
+    if (el) {
+      requestAnimationFrame(() => {
+        el.focus()
+        el.setSelectionRange(newStart, newEnd)
+      })
+    }
+  }
+  const handleImage = () => {
+    const url = typeof window !== 'undefined' ? window.prompt('Enter image URL') : ''
+    if (!url) return
+    const alt = typeof window !== 'undefined' ? window.prompt('Enter alt text (optional)') || '' : ''
+    const el = contentRef.current
+    const value = contentValue || ''
+    const insertion = `![${alt}](${url})`
+    const start = el?.selectionStart ?? value.length
+    const end = el?.selectionEnd ?? value.length
+    const newText = value.slice(0, start) + insertion + value.slice(end)
+    const caret = start + insertion.length
+    setValue('content', newText, { shouldValidate: true })
+    if (el) {
+      requestAnimationFrame(() => {
+        el.focus()
+        el.setSelectionRange(caret, caret)
+      })
+    }
   }
 
   return (
@@ -128,19 +195,19 @@ export default function NewPostPage() {
                   <Label htmlFor="content">Content</Label>
                   <div className="rounded-lg border">
                     <div className="flex items-center gap-1 border-b px-2 py-1 text-gray-500">
-                      <Button type="button" variant="ghost" size="icon" aria-label="Bold">
+                      <Button type="button" onClick={handleBold} variant="ghost" size="icon" aria-label="Bold">
                         <Bold className="h-4 w-4" />
                       </Button>
-                      <Button type="button" variant="ghost" size="icon" aria-label="Italic">
+                      <Button type="button" onClick={handleItalic} variant="ghost" size="icon" aria-label="Italic">
                         <Italic className="h-4 w-4" />
                       </Button>
-                      <Button type="button" variant="ghost" size="icon" aria-label="Underline">
+                      <Button type="button" onClick={handleUnderline} variant="ghost" size="icon" aria-label="Underline">
                         <Underline className="h-4 w-4" />
                       </Button>
-                      <Button type="button" variant="ghost" size="icon" aria-label="Link">
+                      <Button type="button" onClick={handleLink} variant="ghost" size="icon" aria-label="Link">
                         <LinkIcon className="h-4 w-4" />
                       </Button>
-                      <Button type="button" variant="ghost" size="icon" aria-label="Image">
+                      <Button type="button" onClick={handleImage} variant="ghost" size="icon" aria-label="Image">
                         <ImageIcon className="h-4 w-4" />
                       </Button>
                     </div>
@@ -149,7 +216,17 @@ export default function NewPostPage() {
                       placeholder="Start writing your masterpiece..."
                       rows={14}
                       className="border-0 focus-visible:ring-0"
-                      {...register('content')}
+                      {...(() => {
+                        const { ref, ...rest } = register('content')
+                        return {
+                          ...rest,
+                          ref: (el: HTMLTextAreaElement) => {
+                            contentRef.current = el
+                            // @ts-expect-error - RHF ref signature
+                            ref(el)
+                          },
+                        }
+                      })()}
                     />
                   </div>
                   {errors.content && (
