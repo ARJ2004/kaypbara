@@ -17,6 +17,21 @@ This document serves as the single source of truth for the database schema desig
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
+│                         USERS TABLE                              │
+├─────────────────────────────────────────────────────────────────┤
+│ PK  id              UUID        NOT NULL                        │
+│ UK  email           VARCHAR(255) NOT NULL UNIQUE                │
+│     full_name       VARCHAR(255) NULL                           │
+│     avatar_url      TEXT        NULL                            │
+│     created_at      TIMESTAMP   DEFAULT now() NOT NULL          │
+│     updated_at      TIMESTAMP   DEFAULT now() NOT NULL          │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ 1
+                              │
+                              │
+                              ▼ N
+┌─────────────────────────────────────────────────────────────────┐
 │                         POSTS TABLE                              │
 ├─────────────────────────────────────────────────────────────────┤
 │ PK  id              UUID        DEFAULT gen_random_uuid()       │
@@ -24,6 +39,7 @@ This document serves as the single source of truth for the database schema desig
 │ UK  slug            VARCHAR(250) NOT NULL UNIQUE                 │
 │     content         TEXT        NOT NULL                         │
 │     excerpt         TEXT        NULL                             │
+│ FK  author_id       UUID        NOT NULL → users.id             │
 │     published       BOOLEAN     DEFAULT false NOT NULL           │
 │ IDX created_at      TIMESTAMP   DEFAULT now() NOT NULL           │
 │     updated_at      TIMESTAMP   DEFAULT now() NOT NULL           │
@@ -88,6 +104,43 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
 
 // ============================================================================
+// USERS TABLE
+// ============================================================================
+
+export const users = pgTable('users', {
+  // Primary Key
+  id: uuid('id').primaryKey(),
+  
+  // User Information
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  fullName: varchar('full_name', { length: 255 }),
+  avatarUrl: text('avatar_url'),
+  
+  // Timestamps
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+}, (table) => ({
+  // Indexes
+  emailIdx: index('users_email_idx').on(table.email),
+}));
+
+// Relations
+export const usersRelations = relations(users, ({ many }) => ({
+  posts: many(posts),
+}));
+
+// Zod schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const selectUserSchema = createSelectSchema(users);
+
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+
+// ============================================================================
 // POSTS TABLE
 // ============================================================================
 
@@ -101,6 +154,11 @@ export const posts = pgTable('posts', {
   content: text('content').notNull(),
   excerpt: text('excerpt'), // Optional: short preview text
   
+  // Author Information
+  authorId: uuid('author_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  
   // Status
   published: boolean('published').default(false).notNull(),
   
@@ -112,10 +170,15 @@ export const posts = pgTable('posts', {
   publishedIdx: index('posts_published_idx').on(table.published),
   createdAtIdx: index('posts_created_at_idx').on(table.createdAt),
   slugIdx: index('posts_slug_idx').on(table.slug),
+  authorIdIdx: index('posts_author_id_idx').on(table.authorId),
 }));
 
 // Relations for type-safe joins
-export const postsRelations = relations(posts, ({ many }) => ({
+export const postsRelations = relations(posts, ({ one, many }) => ({
+  author: one(users, {
+    fields: [posts.authorId],
+    references: [users.id],
+  }),
   postCategories: many(postCategories),
 }));
 
@@ -125,6 +188,7 @@ export const insertPostSchema = createInsertSchema(posts, {
   content: z.string().min(1, 'Content is required'),
   excerpt: z.string().max(500).optional(),
   slug: z.string().min(1).max(250),
+  authorId: z.string().uuid('Invalid author ID'),
 }).omit({
   id: true,
   createdAt: true,
@@ -280,16 +344,69 @@ export default {
 
 ### 1. Basic CRUD Operations
 
+#### Create User
+```typescript
+import { db } from '@/server/db';
+import { users } from '@/server/db/schema';
+
+// Insert user
+const [newUser] = await db.insert(users).values({
+  id: 'user-uuid-from-auth',
+  email: 'user@example.com',
+  fullName: 'John Doe',
+  avatarUrl: 'https://example.com/avatar.jpg',
+}).returning();
+```
+
+#### Read User
+```typescript
+// Get user by ID
+const user = await db.query.users.findFirst({
+  where: eq(users.id, 'user-uuid'),
+});
+
+// Get user by email
+const user = await db.query.users.findFirst({
+  where: eq(users.email, 'user@example.com'),
+});
+
+// Get user with their posts
+const userWithPosts = await db.query.users.findFirst({
+  where: eq(users.id, 'user-uuid'),
+  with: {
+    posts: {
+      where: eq(posts.published, true),
+      orderBy: [desc(posts.createdAt)],
+    },
+  },
+});
+```
+
+#### Update User
+```typescript
+// Update user information
+const [updatedUser] = await db
+  .update(users)
+  .set({
+    fullName: 'John Smith',
+    avatarUrl: 'https://example.com/new-avatar.jpg',
+    updatedAt: new Date(),
+  })
+  .where(eq(users.id, userId))
+  .returning();
+```
+
 #### Create Post
 ```typescript
 import { db } from '@/server/db';
 import { posts, postCategories } from '@/server/db/schema';
 
-// Insert post
+// Insert post with author
 const [newPost] = await db.insert(posts).values({
   title: 'My First Post',
   slug: 'my-first-post',
   content: 'This is the content...',
+  authorId: 'user-uuid-here',
   published: true,
 }).returning();
 
@@ -310,10 +427,11 @@ if (categoryIds.length > 0) {
 import { db } from '@/server/db';
 import { eq, desc } from 'drizzle-orm';
 
-// Get all published posts with categories
+// Get all published posts with categories and author
 const allPosts = await db.query.posts.findMany({
   where: eq(posts.published, true),
   with: {
+    author: true,
     postCategories: {
       with: {
         category: true,
@@ -335,6 +453,7 @@ const postsWithCategories = allPosts.map(post => ({
 const post = await db.query.posts.findFirst({
   where: eq(posts.slug, 'my-first-post'),
   with: {
+    author: true,
     postCategories: {
       with: {
         category: true,
@@ -347,7 +466,8 @@ if (!post) {
   throw new Error('Post not found');
 }
 
-// Access categories
+// Access author and categories
+const author = post.author;
 const categories = post.postCategories.map(pc => pc.category);
 ```
 
@@ -388,6 +508,51 @@ await db.delete(posts).where(eq(posts.id, postId));
 ```
 
 ### 2. Advanced Query Patterns
+
+#### Get Posts by Author
+```typescript
+// Get all posts by a specific author
+const authorPosts = await db.query.posts.findMany({
+  where: eq(posts.authorId, 'user-uuid'),
+  with: {
+    postCategories: {
+      with: { category: true },
+    },
+  },
+  orderBy: [desc(posts.createdAt)],
+});
+
+// Get published posts by author
+const publishedAuthorPosts = await db.query.posts.findMany({
+  where: and(
+    eq(posts.authorId, 'user-uuid'),
+    eq(posts.published, true)
+  ),
+  with: {
+    postCategories: {
+      with: { category: true },
+    },
+  },
+});
+```
+
+#### Get Authors with Post Count
+```typescript
+import { count, sql } from 'drizzle-orm';
+
+const authorsWithCount = await db
+  .select({
+    id: users.id,
+    email: users.email,
+    fullName: users.fullName,
+    avatarUrl: users.avatarUrl,
+    postCount: count(posts.id),
+  })
+  .from(users)
+  .leftJoin(posts, eq(users.id, posts.authorId))
+  .groupBy(users.id)
+  .orderBy(desc(count(posts.id)));
+```
 
 #### Filter Posts by Category
 ```typescript
@@ -519,6 +684,32 @@ await db.transaction(async (tx) => {
 
 ## Validation Schemas (Zod)
 
+### User Validation
+
+```typescript
+// server/lib/validators.ts
+import { z } from 'zod';
+
+export const createUserInput = z.object({
+  id: z.string().uuid('Invalid user ID'),
+  email: z.string().email('Invalid email address').max(255, 'Email too long'),
+  fullName: z.string().max(255, 'Full name too long').optional(),
+  avatarUrl: z.string().url('Invalid avatar URL').optional(),
+});
+
+export const updateUserInput = z.object({
+  id: z.string().uuid(),
+  email: z.string().email().max(255).optional(),
+  fullName: z.string().max(255).optional(),
+  avatarUrl: z.string().url().optional(),
+});
+
+export const getUserInput = z.object({
+  id: z.string().uuid().optional(),
+  email: z.string().email().optional(),
+});
+```
+
 ### Post Validation
 
 ```typescript
@@ -529,6 +720,7 @@ export const createPostInput = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title is too long'),
   content: z.string().min(1, 'Content is required'),
   excerpt: z.string().max(500, 'Excerpt is too long').optional(),
+  authorId: z.string().uuid('Invalid author ID'),
   published: z.boolean().default(false),
   categoryIds: z.array(z.string().uuid()).min(0).max(10, 'Too many categories'),
 });
@@ -538,6 +730,7 @@ export const updatePostInput = z.object({
   title: z.string().min(1).max(200).optional(),
   content: z.string().min(1).optional(),
   excerpt: z.string().max(500).optional(),
+  authorId: z.string().uuid().optional(),
   published: z.boolean().optional(),
   categoryIds: z.array(z.string().uuid()).min(0).max(10).optional(),
 });
@@ -585,18 +778,22 @@ export const deleteCategoryInput = z.object({
 
 ```typescript
 // Primary Indexes (Automatically created)
+- users.id (Primary Key) ✓
 - posts.id (Primary Key) ✓
 - categories.id (Primary Key) ✓
 - postCategories.(postId, categoryId) (Composite Primary Key) ✓
 
 // Unique Indexes (For data integrity)
+- users.email (Unique) ✓
 - posts.slug (Unique) ✓
 - categories.name (Unique) ✓
 - categories.slug (Unique) ✓
 
 // Performance Indexes (For query optimization)
+- users.email (Lookup by email)
 - posts.published (Filter by status)
 - posts.createdAt (Sort by date)
+- posts.authorId (Filter by author)
 - postCategories.postId (Join queries)
 - postCategories.categoryId (Join queries)
 ```
@@ -604,7 +801,8 @@ export const deleteCategoryInput = z.object({
 ### When to Add More Indexes
 
 Add indexes if you frequently query by:
-- Post author (if adding users later)
+- Post author (already added: posts.authorId)
+- User creation date (if needed for user analytics)
 - Post views/popularity (if adding analytics)
 - Category popularity
 - Full-text search (use PostgreSQL's `tsvector`)
@@ -635,7 +833,7 @@ npx drizzle-kit migrate
 
 ```typescript
 import { db } from '../src/server/db';
-import { posts, categories, postCategories } from '../src/server/db/schema';
+import { users, posts, categories, postCategories } from '../src/server/db/schema';
 import { slugify } from '../src/lib/slugify';
 
 async function seed() {
@@ -645,6 +843,36 @@ async function seed() {
   await db.delete(postCategories);
   await db.delete(posts);
   await db.delete(categories);
+  await db.delete(users);
+
+  // Seed users
+  const usersData = [
+    {
+      id: '550e8400-e29b-41d4-a716-446655440001',
+      email: 'john.doe@example.com',
+      fullName: 'John Doe',
+      avatarUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    },
+    {
+      id: '550e8400-e29b-41d4-a716-446655440002',
+      email: 'jane.smith@example.com',
+      fullName: 'Jane Smith',
+      avatarUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+    },
+    {
+      id: '550e8400-e29b-41d4-a716-446655440003',
+      email: 'mike.wilson@example.com',
+      fullName: 'Mike Wilson',
+      avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    },
+  ];
+
+  const insertedUsers = await db
+    .insert(users)
+    .values(usersData)
+    .returning();
+
+  console.log(`✓ Created ${insertedUsers.length} users`);
 
   // Seed categories
   const categoriesData = [
@@ -699,6 +927,7 @@ Next.js 15 introduces several exciting features that make building web applicati
 
 This is a comprehensive guide to help you get started.`,
       excerpt: 'Learn about the new features in Next.js 15 and how to get started',
+      authorId: insertedUsers[0].id, // John Doe
       published: true,
     },
     {
@@ -708,6 +937,7 @@ This is a comprehensive guide to help you get started.`,
 
 TypeScript has become the standard for building robust JavaScript applications...`,
       excerpt: 'Modern TypeScript patterns and practices for better code',
+      authorId: insertedUsers[1].id, // Jane Smith
       published: true,
     },
     {
@@ -717,6 +947,7 @@ TypeScript has become the standard for building robust JavaScript applications..
 
 tRPC provides end-to-end type safety for your APIs...`,
       excerpt: 'Complete guide to building type-safe APIs',
+      authorId: insertedUsers[0].id, // John Doe
       published: true,
     },
     {
@@ -726,6 +957,7 @@ tRPC provides end-to-end type safety for your APIs...`,
 
 Tailwind CSS is a utility-first framework...`,
       excerpt: 'Learn advanced Tailwind CSS techniques',
+      authorId: insertedUsers[2].id, // Mike Wilson
       published: true,
     },
     {
@@ -735,6 +967,7 @@ Tailwind CSS is a utility-first framework...`,
 
 This is a draft post about upcoming features...`,
       excerpt: 'A draft post for testing',
+      authorId: insertedUsers[1].id, // Jane Smith
       published: false,
     },
   ];
@@ -786,11 +1019,22 @@ seed()
 ### File: `types/index.ts`
 
 ```typescript
-import type { Post, Category, PostCategory } from '@/server/db/schema';
+import type { User, Post, Category, PostCategory } from '@/server/db/schema';
 
-// Post with its categories (denormalized for easier use)
+// Post with its categories and author (denormalized for easier use)
 export interface PostWithCategories extends Post {
   categories: Category[];
+  author: User;
+}
+
+// Post with author only
+export interface PostWithAuthor extends Post {
+  author: User;
+}
+
+// User with post count
+export interface UserWithPostCount extends User {
+  postCount: number;
 }
 
 // Category with post count
@@ -803,8 +1047,16 @@ export interface PostFormData {
   title: string;
   content: string;
   excerpt?: string;
+  authorId: string;
   published: boolean;
   categoryIds: string[];
+}
+
+// User form data
+export interface UserFormData {
+  email: string;
+  fullName?: string;
+  avatarUrl?: string;
 }
 
 // Category form data
@@ -840,7 +1092,21 @@ if (existingPost) {
 .references(() => posts.id, { onDelete: 'cascade' })
 ```
 
-### Issue 3: Slow Queries
+### Issue 3: User Not Found When Creating Post
+```typescript
+// Solution: Ensure user exists before creating post
+const user = await db.query.users.findFirst({
+  where: eq(users.id, authorId),
+});
+
+if (!user) {
+  throw new Error('Author not found');
+}
+
+// Then create post with valid authorId
+```
+
+### Issue 4: Slow Queries
 ```typescript
 // Solution: Add indexes
 // Check query performance in Drizzle Studio
@@ -869,4 +1135,4 @@ if (existingPost) {
 
 ---
 
-**Last Updated:** Reference this file whenever working with database operations
+**Last Updated:** Updated to include users table with author relationships. Reference this file whenever working with database operations.
