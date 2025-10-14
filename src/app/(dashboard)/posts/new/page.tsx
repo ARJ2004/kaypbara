@@ -12,11 +12,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Bold, Italic, Underline, Link as LinkIcon, Image as ImageIcon, Eye } from 'lucide-react'
+import { ArrowLeft, Bold, Italic, Underline, Link as LinkIcon, Image as ImageIcon } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
+import { createClient as createSupabaseClient } from '@/lib/supabase/client'
 
 const postFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -32,6 +33,8 @@ export default function NewPostPage() {
   const router = useRouter()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const contentRef = useRef<HTMLTextAreaElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+  const [isUploadingImage, setIsUploadingImage] = useState<boolean>(false)
   // Always-on live preview; no toggle
 
   const { data: categories, isLoading: isLoadingCategories } = trpc.category.getAll.useQuery()
@@ -139,12 +142,12 @@ export default function NewPostPage() {
     }
   }
   const handleImage = () => {
-    const url = typeof window !== 'undefined' ? window.prompt('Enter image URL') : ''
-    if (!url) return
-    const alt = typeof window !== 'undefined' ? window.prompt('Enter alt text (optional)') || '' : ''
+    fileInputRef.current?.click()
+  }
+
+  const insertAtSelection = (insertion: string) => {
     const el = contentRef.current
     const value = contentValue || ''
-    const insertion = `![${alt}](${url})`
     const start = el?.selectionStart ?? value.length
     const end = el?.selectionEnd ?? value.length
     const newText = value.slice(0, start) + insertion + value.slice(end)
@@ -155,6 +158,39 @@ export default function NewPostPage() {
         el.focus()
         el.setSelectionRange(caret, caret)
       })
+    }
+  }
+
+  const onImageFileChange: React.ChangeEventHandler<HTMLInputElement> = async (e) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    try {
+      setIsUploadingImage(true)
+      const supabase = createSupabaseClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      const userId = user?.id ?? 'anonymous'
+      const filePath = `${userId}/${Date.now()}-${file.name}`
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(filePath, file, { upsert: true, contentType: file.type })
+      if (uploadError) {
+        setSubmitError(uploadError.message || 'Failed to upload image')
+        return
+      }
+      const { data: publicData } = supabase.storage.from('post-images').getPublicUrl(filePath)
+      const publicUrl = publicData?.publicUrl
+      if (!publicUrl) {
+        setSubmitError('Failed to get image URL')
+        return
+      }
+      const alt = typeof window !== 'undefined' ? window.prompt('Enter alt text (optional)') || '' : ''
+      const insertion = `![${alt}](${publicUrl})`
+      insertAtSelection(insertion)
+    } catch (err: any) {
+      setSubmitError(err?.message || 'Image upload failed')
+    } finally {
+      setIsUploadingImage(false)
     }
   }
 
@@ -212,9 +248,10 @@ export default function NewPostPage() {
                       <Button type="button" onClick={handleLink} variant="ghost" size="icon" aria-label="Link">
                         <LinkIcon className="h-4 w-4" />
                       </Button>
-                      <Button type="button" onClick={handleImage} variant="ghost" size="icon" aria-label="Image">
+                      <Button type="button" onClick={handleImage} variant="ghost" size="icon" aria-label="Image" disabled={isUploadingImage}>
                         <ImageIcon className="h-4 w-4" />
                       </Button>
+                      <input ref={fileInputRef} className="hidden" type="file" accept="image/*" onChange={onImageFileChange} />
                       <div className="ml-auto text-xs text-gray-500 select-none pr-2">Live preview</div>
                     </div>
                     <Textarea
