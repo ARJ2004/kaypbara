@@ -5,6 +5,8 @@ import { posts, postCategories } from '../../db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { createPostSchema, updatePostSchema, getPostsSchema, getPostBySlugSchema } from '../../lib/validators';
 import { slugify } from '../../lib/slugify';
+import { ensureUserInDatabase } from '@/lib/auth-utils';
+import { TRPCError } from '@trpc/server';
 
 export const postRouter = router({
   getAll: publicProcedure
@@ -71,6 +73,13 @@ export const postRouter = router({
     .mutation(async ({ input, ctx }) => {
       const { title, content, excerpt, published, categoryIds } = input;
       const slug = slugify(title);
+
+      // Ensure author exists in our local users table (FK constraint)
+      try {
+        await ensureUserInDatabase(ctx.user);
+      } catch (error) {
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to ensure user', cause: error });
+      }
 
       const [newPost] = await ctx.db
         .insert(posts)

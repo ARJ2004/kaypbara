@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -26,14 +26,19 @@ type PostFormData = z.infer<typeof postFormSchema>
 
 export default function NewPostPage() {
   const router = useRouter()
+  const [submitError, setSubmitError] = useState<string | null>(null)
 
   const { data: categories, isLoading: isLoadingCategories } = trpc.category.getAll.useQuery()
 
   const utils = trpc.useUtils()
   const createPost = trpc.post.create.useMutation({
     onSuccess: async (post) => {
+      setSubmitError(null)
       await utils.post.getAll.invalidate()
       router.push(`/posts/${post.slug}`)
+    },
+    onError: (error) => {
+      setSubmitError(error.message || 'Failed to create post')
     },
   })
 
@@ -69,16 +74,17 @@ export default function NewPostPage() {
     [selectedCategoryIds, setValue]
   )
 
-  const submitWithStatus = (published: boolean) =>
-    handleSubmit((data) => {
-      createPost.mutate({
-        title: data.title.trim(),
-        content: data.content,
-        excerpt: data.excerpt?.trim() || undefined,
-        categoryIds: data.categoryIds,
-        published,
-      })
-    })()
+  const onSubmit = (data: PostFormData, event?: any) => {
+    const submitterValue: string | undefined = event?.nativeEvent?.submitter?.value
+    const publish = submitterValue === 'publish'
+    createPost.mutate({
+      title: data.title.trim(),
+      content: data.content,
+      excerpt: data.excerpt?.trim() || undefined,
+      categoryIds: data.categoryIds,
+      published: publish,
+    })
+  }
 
   return (
     <div className="space-y-8">
@@ -95,9 +101,14 @@ export default function NewPostPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main form */}
         <div className="lg:col-span-2 space-y-6">
+          {submitError && (
+            <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              {submitError}
+            </div>
+          )}
           <Card>
             <CardHeader>
               <CardTitle>Post Details</CardTitle>
@@ -202,26 +213,17 @@ export default function NewPostPage() {
               </div>
 
               <div className="flex flex-col gap-3">
-                <Button
-                  type="button"
-                  onClick={() => submitWithStatus(true)}
-                  disabled={createPost.isPending}
-                >
+                <Button type="submit" value="publish" name="intent" disabled={createPost.isPending}>
                   {createPost.isPending ? 'Publishing...' : 'Publish Post'}
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => submitWithStatus(false)}
-                  disabled={createPost.isPending}
-                >
+                <Button type="submit" value="draft" name="intent" variant="outline" disabled={createPost.isPending}>
                   {createPost.isPending ? 'Saving...' : 'Save as Draft'}
                 </Button>
               </div>
             </CardContent>
           </Card>
         </div>
-      </div>
+      </form>
     </div>
   )
 }
