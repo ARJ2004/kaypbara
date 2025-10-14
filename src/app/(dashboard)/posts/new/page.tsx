@@ -12,7 +12,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { ArrowLeft, Bold, Italic, Underline, Link as LinkIcon, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, Bold, Italic, Underline, Link as LinkIcon, Image as ImageIcon, Eye } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeRaw from 'rehype-raw'
+import rehypeSanitize, { defaultSchema } from 'rehype-sanitize'
 
 const postFormSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -28,6 +32,7 @@ export default function NewPostPage() {
   const router = useRouter()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const contentRef = useRef<HTMLTextAreaElement | null>(null)
+  const [showPreview, setShowPreview] = useState<boolean>(true)
 
   const { data: categories, isLoading: isLoadingCategories } = trpc.category.getAll.useQuery()
 
@@ -210,6 +215,11 @@ export default function NewPostPage() {
                       <Button type="button" onClick={handleImage} variant="ghost" size="icon" aria-label="Image">
                         <ImageIcon className="h-4 w-4" />
                       </Button>
+                      <div className="ml-auto" />
+                      <Button type="button" onClick={() => setShowPreview((v) => !v)} variant="ghost" size="sm" aria-label="Toggle Preview" className="flex items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        {showPreview ? 'Hide Preview' : 'Show Preview'}
+                      </Button>
                     </div>
                     <Textarea
                       id="content"
@@ -232,6 +242,33 @@ export default function NewPostPage() {
                         }
                       })()}
                     />
+                    {showPreview && (
+                      <div className="border-t p-3 bg-white">
+                        <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Live preview</div>
+                        <div className="prose prose-sm sm:prose max-w-none">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[
+                              rehypeRaw,
+                              [
+                                rehypeSanitize,
+                                {
+                                  ...defaultSchema,
+                                  tagNames: [...(defaultSchema.tagNames || []), 'u'],
+                                  attributes: {
+                                    ...(defaultSchema.attributes || {}),
+                                    a: ['href', 'title', 'target', 'rel'],
+                                    img: ['src', 'alt', 'title', 'width', 'height'],
+                                  },
+                                },
+                              ],
+                            ]}
+                          >
+                            {contentValue || ''}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   {errors.content && (
                     <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
