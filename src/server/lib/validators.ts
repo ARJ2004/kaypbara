@@ -31,6 +31,7 @@ export const updateCategorySchema = z.object({
 export const getPostsSchema = z.object({
   published: z.boolean().optional(),
   categoryId: z.string().uuid().optional(),
+  authorId: z.string().uuid().optional(),
   limit: z.number().min(1).max(100).default(50),
 });
 
