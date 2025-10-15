@@ -2,8 +2,28 @@ import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Plus, FileText, Tag, TrendingUp } from 'lucide-react'
+import { appRouter } from '@/server/api/root'
+import { createClient } from '@/lib/supabase/server'
+import { db } from '@/server/db'
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  // Create server-side tRPC caller
+  const supabase = await createClient();
+  const caller = appRouter.createCaller({ db, supabase });
+
+  // Fetch dashboard stats
+  let stats = {
+    totalPosts: 0,
+    publishedPosts: 0,
+    categories: 0,
+  };
+
+  try {
+    stats = await caller.user.getDashboardStats();
+  } catch (error) {
+    // If user is not authenticated or error occurs, use default values
+    console.error('Error fetching dashboard stats:', error);
+  }
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -28,10 +48,7 @@ export default function DashboardPage() {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              +0 from last month
-            </p>
+            <div className="text-2xl font-bold">{stats.totalPosts}</div>
           </CardContent>
         </Card>
 
@@ -41,10 +58,7 @@ export default function DashboardPage() {
             <Tag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              +0 from last month
-            </p>
+            <div className="text-2xl font-bold">{stats.categories}</div>
           </CardContent>
         </Card>
 
@@ -54,10 +68,7 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
-              +0 from last month
-            </p>
+            <div className="text-2xl font-bold">{stats.publishedPosts}</div>
           </CardContent>
         </Card>
       </div>

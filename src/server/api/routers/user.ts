@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { router, publicProcedure, protectedProcedure } from '../trpc'
-import { users, insertUserSchema } from '@/server/db/schema'
-import { eq } from 'drizzle-orm'
+import { users, insertUserSchema, posts, postCategories } from '@/server/db/schema'
+import { eq, and, sql, countDistinct } from 'drizzle-orm'
 import { ensureUserInDatabase } from '@/lib/auth-utils'
 
 export const userRouter = router({
@@ -48,5 +48,39 @@ export const userRouter = router({
         .limit(1)
 
       return user[0] || null
+    }),
+
+  // Get dashboard stats for the current user
+  getDashboardStats: protectedProcedure
+    .query(async ({ ctx }) => {
+      const userId = ctx.user.id;
+
+      // Get total posts count
+      const totalPostsResult = await ctx.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(posts)
+        .where(eq(posts.authorId, userId));
+      const totalPosts = totalPostsResult[0]?.count || 0;
+
+      // Get published posts count
+      const publishedPostsResult = await ctx.db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(posts)
+        .where(and(eq(posts.authorId, userId), eq(posts.published, true)));
+      const publishedPosts = publishedPostsResult[0]?.count || 0;
+
+      // Get unique categories count used in user's posts
+      const categoriesResult = await ctx.db
+        .select({ count: countDistinct(postCategories.categoryId) })
+        .from(posts)
+        .leftJoin(postCategories, eq(posts.id, postCategories.postId))
+        .where(eq(posts.authorId, userId));
+      const categories = Number(categoriesResult[0]?.count || 0);
+
+      return {
+        totalPosts,
+        publishedPosts,
+        categories,
+      };
     }),
 })
