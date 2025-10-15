@@ -12,12 +12,16 @@ export const postRouter = router({
   getAll: publicProcedure
     .input(getPostsSchema)
     .query(async ({ input, ctx }) => {
-      const { published, categoryId, limit } = input;
+      const { published, categoryId, authorId, limit } = input;
       
       const conditions = [];
       
       if (published !== undefined) {
         conditions.push(eq(posts.published, published));
+      }
+
+      if (authorId) {
+        conditions.push(eq(posts.authorId, authorId));
       }
 
       if (categoryId) {

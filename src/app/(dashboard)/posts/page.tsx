@@ -1,18 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Edit, Trash2, Eye, FileText } from 'lucide-react';
 import { trpc } from '@/lib/trpc/client';
+import { createClient } from '@/lib/supabase/client';
 
 export default function PostsPage() {
   const [filter, setFilter] = useState<'all' | 'published' | 'drafts'>('all');
+  const [userId, setUserId] = useState<string | null>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    getUser();
+  }, [supabase]);
   
   const { data: posts, isLoading, error } = trpc.post.getAll.useQuery({
     published: filter === 'all' ? undefined : filter === 'published',
+    authorId: userId ?? undefined,
     limit: 50,
+  }, {
+    enabled: !!userId, // Only run query when we have a user ID
   });
 
   const deletePost = trpc.post.delete.useMutation();
