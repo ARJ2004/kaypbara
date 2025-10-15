@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Blog Post</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1173d4",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-b-[#233648] px-4 sm:px-10 lg:px-40 py-3">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-gray-800 dark:text-white">
+<div class="size-6 text-primary">
+<svg fill="currentColor" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-gray-800 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">TechSphere</h2>
+</div>
+<nav class="hidden md:flex items-center gap-9">
+<a class="text-gray-600 dark:text-gray-300 text-sm font-medium leading-normal" href="#">Home</a>
+<a class="text-gray-600 dark:text-gray-300 text-sm font-medium leading-normal" href="#">About</a>
+<a class="text-gray-600 dark:text-gray-300 text-sm font-medium leading-normal" href="#">Categories</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end items-center gap-2">
+<label class="hidden sm:flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-gray-500 dark:text-[#92adc9] flex border border-gray-300 dark:border-[#233648] bg-gray-100 dark:bg-[#233648] items-center justify-center pl-3 rounded-l-lg border-r-0">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-white focus:outline-0 focus:ring-0 border border-gray-300 dark:border-[#233648] bg-gray-100 dark:bg-[#233648] focus:border-primary h-full placeholder:text-gray-500 dark:placeholder:text-[#92adc9] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search" value=""/>
+</div>
+</label>
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-gray-200 dark:bg-[#233648] text-gray-600 dark:text-white">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10" data-alt="User avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB8seMlK6LR3vULAoE4JWyXuCyRxZc_t8zNqVRyJLLJkEFnmwhwk9D3gtBNk3XYw2bYWiHnrNKZu8u9Fqse4keclz50hth-CPTOgTZIm1efXva8g9t3uvM5yhswHi-XKrBfi5fujrQV8aJP7J9AGm56w_t6cjn4WRx4FdjzOcwaQT50D4M1dx6FTQM3qgufuj6XPNKjZW-nXGDvzgYW0_ZF8FmlNHwTwCdpJ8SZb8DtxuKCkGNSqZ6a-0E7OLaV4JRByYrUAFkkkUCy");'></div>
+</div>
+</header>
+<main class="px-4 sm:px-10 lg:px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-4xl flex-1">
+<div class="flex flex-col gap-6 py-8">
+<div class="flex flex-wrap justify-between gap-3 p-4">
+<div class="flex min-w-72 flex-col gap-3">
+<p class="text-gray-800 dark:text-white text-4xl lg:text-5xl font-black leading-tight tracking-[-0.033em]">The Future of Artificial Intelligence</p>
+<p class="text-gray-600 dark:text-[#92adc9] text-lg font-normal leading-normal">Exploring the next wave of innovation and its impact on our world.</p>
+</div>
+</div>
+<div class="flex p-4 @container">
+<div class="flex w-full flex-col gap-4 @[520px]:flex-row @[520px]:justify-between @[520px]:items-center">
+<div class="flex items-center gap-4">
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-16" data-alt="Author Jane Doe" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAqh2gxpASKaHZ8arfY-4_mcbCScK8XoqSOVSa0BTK60trQ1NYiI-ople3JyQ3n4KQOiy1fz3lKhw8K04m6Y3b2AiPSPeuDDoCV-hVhvo-_qcsXWNJ-DEQAQHWcAhndbI14sWF9VznDeCK-uofK9KMf1VhLYd-GJ3zvWhbjI8PeFjQ_7FT7oHz81vLJV_p3Kf9IEhKlusQ54TxowC_wlWKYTPois3qUKxIeRa4gE_juETXqo3lvTFTqs353F9v6F4XO9dyDHhl_3stE");'></div>
+<div class="flex flex-col justify-center">
+<p class="text-gray-800 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Jane Doe</p>
+<p class="text-gray-600 dark:text-[#92adc9] text-sm font-normal leading-normal">Published on August 2, 2023</p>
+</div>
+</div>
+<p class="text-gray-500 dark:text-[#92adc9] text-sm font-normal leading-normal">1200 words | 6 min read</p>
+</div>
+</div>
+<div class="@container">
+<div class="@[480px]:px-4 @[480px]:py-3">
+<div class="w-full bg-center bg-no-repeat bg-cover flex flex-col justify-end overflow-hidden bg-gray-200 dark:bg-[#111a22] @[480px]:rounded-lg min-h-80 lg:min-h-96" data-alt="Abstract image of AI neural network" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCGgQLDY3TBzjeZiUxVAR4jr_8m_AhpfYCs9cfvcE01MS0-u79XSvN5xt0XSUA1lb-uIVv3yE9a4uB_GBhhn2jvUgIJQAoNLz7DtnhHhVhgbj-uVYJJb4AyRRHbB45w21lYURFdMMHDrn2bWXwtOBWeX1JreVHGL24CgLe5E8Mdhh8qftXxgkE6QuaQ1XZeMrS5wcyTDQrwh6d2EeTYhlL6wPvr7MWEp8xFHwLTmlu_f4jX7PVuB0Oa5NXR8_qmXYZTqMzAiJtPlWFr");'></div>
+</div>
+</div>
+<article class="prose prose-lg dark:prose-invert max-w-none px-4 text-gray-700 dark:text-gray-300">
+<p>Artificial Intelligence (AI) is no longer a concept confined to science fiction. It's a transformative force reshaping industries, economies, and our daily lives. From the algorithms that power our social media feeds to the complex systems that drive autonomous vehicles, AI is everywhere. This article delves into the exciting frontiers of AI, exploring the innovations that are on the horizon and contemplating their profound impact on society.</p>
+<h2>The Current State of AI</h2>
+<p>We are currently in the era of "narrow AI," where systems are designed to perform specific tasks, such as image recognition or natural language processing. While impressive, these systems lack the general intelligence of humans. However, the progress in machine learning, particularly deep learning, has been exponential, leading to breakthroughs that were once thought to be decades away.</p>
+<blockquote>
+<p>"The development of full artificial intelligence could spell the end of the human race." - Stephen Hawking</p>
+</blockquote>
+<h2>Code Example: A Simple Neural Network</h2>
+<p>To understand the building blocks of modern AI, let's look at a simplified example of a neural network using Python and the popular library, Keras.</p>
+<pre><code class="language-python">
+import tensorflow as tf
+from tensorflow import keras
+
+# Define a simple sequential model
+model = keras.Sequential([
+    keras.layers.Dense(128, activation='relu', input_shape=(784,)),
+    keras.layers.Dense(10, activation='softmax')
+])
+
+# Compile the model
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+print(model.summary())
+                            </code></pre>
+<p>This code snippet defines a basic two-layer neural network. The first layer has 128 nodes and uses the ReLU activation function, while the second layer is a 10-node softmax layer that returns an array of 10 probability scores that sum to 1. This structure is common for classification tasks, such as recognizing handwritten digits from the MNIST dataset.</p>
+<img alt="A robotic hand touching a digital brain interface." class="rounded-lg" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNQKmnic8wJvgynESODjkyOg8k4T0zdLwAx4GSS6idtm8LTYkCCvCwCUtDtmlAnmpeW3udSZwvvhYGBIMHZajUzuMeDvL6WOeHXYMdbvf1VPrP3z8stHeE6D7RDPKA7Whi0hm9zyUXqbHdu4rciZhkKTLqlZnIkUvR1WzIsN9eEUkNtQo4_G-wTDMMZKC1Otm0C9WjBKm43rveufUviSUUQxARRIJzQDw0Pz8qvhtbcN35nDrAZ6aL_bcwpjuoE8hbkqhuOqkSxvQC"/>
+<figcaption class="text-center text-sm text-gray-500 dark:text-gray-400">The intersection of human and machine intelligence.</figcaption>
+<h2>The Road to Artificial General Intelligence (AGI)</h2>
+<p>The ultimate goal for many AI researchers is to create Artificial General Intelligence (AGI) – a machine with the ability to understand, learn, and apply its intelligence to solve any problem, much like a human being. The path to AGI is fraught with challenges, both technical and ethical. Questions about consciousness, creativity, and the potential risks of superintelligence are at the forefront of the discussion.</p>
+<p>As we continue to push the boundaries of what's possible, it is crucial to foster a global dialogue about the future we want to build with AI. Collaborative efforts between researchers, policymakers, and the public will be essential to ensure that AI is developed and deployed responsibly, for the benefit of all humanity.</p>
+</article>
+<div class="px-4 py-6 border-t border-b border-gray-200 dark:border-[#233648] flex flex-col sm:flex-row items-center justify-between gap-4">
+<p class="text-gray-800 dark:text-white font-semibold">Share this post:</p>
+<div class="flex items-center gap-2">
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-gray-200 dark:bg-[#233648] text-gray-600 dark:text-white">
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.58-2.46.67.88-.53 1.56-1.37 1.88-2.38-.83.49-1.74.85-2.7 1.03A4.5 4.5 0 0016.46 4a4.49 4.49 0 00-4.48 4.48c0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79a4.5 4.5 0 001.39 6.02c-.75-.02-1.45-.23-2.07-.57v.06c0 2.2 1.56 4.03 3.64 4.44-.67.18-1.37.28-2.1.28-.29 0-.57-.03-.85-.08.58 1.8 2.26 3.12 4.25 3.16C5.52 19.34 3.81 20 2 20c-.33 0-.66-.02-.98-.06 2.09 1.35 4.58 2.14 7.24 2.14 8.68 0 13.43-7.2 13.43-13.43 0-.2 0-.41-.02-.61.92-.66 1.7-1.49 2.32-2.4z"></path></svg>
+</button>
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-gray-200 dark:bg-[#233648] text-gray-600 dark:text-white">
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24"><path d="M20 3H4a1 1 0 00-1 1v16a1 1 0 001 1h8.615v-6.96h-2.338v-2.725h2.338v-2.022c0-2.308 1.38-3.584 3.486-3.584.996 0 1.848.074 2.096.107v2.42h-1.435c-1.121 0-1.34.534-1.34 1.315v1.745h2.697l-.35 2.725h-2.347V21H20a1 1 0 001-1V4a1 1 0 00-1-1z"></path></svg>
+</button>
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-gray-200 dark:bg-[#233648] text-gray-600 dark:text-white">
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24"><path d="M21.543 6.498C22 8.28 22 12 22 12s0 3.72-.457 5.502c-.254.985-.997 1.76-1.938 2.022C17.896 20 12 20 12 20s-5.893 0-7.605-.476c-.94-.262-1.683-1.037-1.938-2.022C2 15.72 2 12 2 12s0-3.72.457-5.502c.255-.985.998-1.76 1.938-2.022C6.107 4 12 4 12 4s5.896 0 7.605.476c.94.262 1.683 1.037 1.938 2.022zM10 15.5l5-3.5-5-3.5v7z"></path></svg>
+</button>
+<button class="flex items-center justify-center rounded-full h-10 w-10 bg-gray-200 dark:bg-[#233648] text-gray-600 dark:text-white">
+<svg class="h-5 w-5" fill="currentColor" viewbox="0 0 24 24"><path d="M19 3a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h14zm-7 5a3 3 0 100 6 3 3 0 000-6zM6.5 8.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM18 6h-3.5a1.5 1.5 0 000 3H18V6z"></path></svg>
+</button>
+</div>
+</div>
+<div class="p-4 space-y-6">
+<h2 class="text-2xl font-bold text-gray-800 dark:text-white">Comments (3)</h2>
+<div class="space-y-4">
+<div class="flex gap-4">
+<img alt="Avatar of Alex Johnson" class="h-10 w-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtLMs65IeTlupn8rnwwBxfbwyUS7vz8ETSo636NzT8toCsRS79KlAR4z7iaRKd_0kR6CWw2RBvfCYgB_oJzu_2jbmsknAOLcGmIQJ25Aqwb0N5Z0roNmhEwxwoYqvhqG_JJ-t9UKwlKPyV4TRbTpIOO4yYAshy1Tv5aigrv1aayUmSumt6hRt8FPt5fpR4dQ3-TyybkvrQMGaSJsrcqQin41Fr3O9Sj5Jl7bHXcAD-d_oMyWk5UJUqFqFeJl2cg0bJkAJF_JPxIC_N"/>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<p class="font-semibold text-gray-800 dark:text-white">Alex Johnson</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">2 days ago</p>
+</div>
+<p class="mt-1 text-gray-600 dark:text-gray-300">Great article! The explanation of neural networks was very clear and concise.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<img alt="Avatar of Maria Garcia" class="h-10 w-10 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6muA1_wQWpNiaA0FatIAH0vMzb_BRbdwRCIyYOs7jazfoWZ-6eTLep7X-tWfe9HM4qdTwV9pj2f05f6o4ZTcbUZ0o_g-ZrFJhNx7j8alOkVSDK6A5t4YOa_4mvoZXljsfgI7S2Gf8n0crxo0G0l6ZTXNnEdsJllpvn9QghR1LbvhBkSGtA77gy3sG-41F1R_2gS8nLXmYJSHYzhhW64-VSxqAr36bLzYPrd8esOg6TXUUmu8BUxnfHd0skJ6AKV3OmyfV7i8jsQj5"/>
+<div class="flex-1">
+<div class="flex items-center justify-between">
+<p class="font-semibold text-gray-800 dark:text-white">Maria Garcia</p>
+<p class="text-sm text-gray-500 dark:text-gray-400">1 day ago</p>
+</div>
+<p class="mt-1 text-gray-600 dark:text-gray-300">I agree with Hawking's quote. We need to be very careful about the path to AGI.</p>
+</div>
+</div>
+</div>
+<form class="mt-6">
+<textarea class="form-textarea w-full rounded-lg border-gray-300 dark:border-[#233648] bg-gray-100 dark:bg-[#233648] text-gray-800 dark:text-white focus:ring-primary focus:border-primary" placeholder="Add a comment..." rows="4"></textarea>
+<button class="mt-2 flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]" type="submit">Post Comment</button>
+</form>
+</div>
+<div class="p-4 border-t border-gray-200 dark:border-[#233648]">
+<h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Related Posts</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="group">
+<img alt="Machine Learning in practice" class="rounded-lg mb-2 w-full h-40 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdpP87D1eNpGxf8BHD9pspGi86BJqw_S0CsoiD5FcucZm51pzTPuEENN3YMczGwrjBA36TGH_y45_PhDdRZBiTfgN6oW51udLH50KyCoK8bJm07Q6U0XWHZufOOEAGyIYZKFWpyqH68M7LARsKgi7l9S_3gLZJwkHs6CDqDn0y73gWoZ2wrgMUQ1hLt3J1z8K3GrOPskGu8MjHxxKm1Vef4Uhk6QTuIphGn0Gjb5zAhKQmyda26gN5LoVg6ik1Ca7n-PSVGxqIExF-"/>
+<h3 class="text-lg font-semibold text-gray-800 dark:text-white group-hover:text-primary">Machine Learning in Practice</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">By John Smith</p>
+</div>
+<div class="group">
+<img alt="The Ethics of AI" class="rounded-lg mb-2 w-full h-40 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx4cXN-2K18zXgQdUEQK3kNfqYbue1gaRP_SqkajphGvrwVQvL2jGerheg1GNNWMVdqO68uIXmNYPf6mjJ1a9RE1ClAYYE5WgJ9mFur5MmvMLqfHiiBFTerMOLgcN4uabNvLghkku45WPRJ0HWotxmhYd0v6AtPYmCp14X4kZINtye5n703n3BYWdmICBsxe0973mLSk3BJvvH1K4zYrE2WcZbK6dmqCi95lgI57tt398iRu-aM5UMcYZ87b1XgroFEGiqCGQ06ZVK"/>
+<h3 class="text-lg font-semibold text-gray-800 dark:text-white group-hover:text-primary">The Ethics of AI</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">By Emily White</p>
+</div>
+<div class="group">
+<img alt="Natural Language Processing advancements" class="rounded-lg mb-2 w-full h-40 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_M2h5BKbhfuyVfwTghXEeKZlf7SsffD5-yIhJcV2DVSOSEGAAnEco1QKyja08m8Zrh74-hNx8mFB2XdR_Vbev5QOw6QPfm4EqbYdpI7kukzPPbqbNdxHLmbbaxc_x2qmcwpbpSam8Yaoa2lszebOi-LDc_Zpw3Set76F82iIA7y90Y8_hMhH0RAuy6MhRuEDyTxQ4MjVkMt7WOkSwYfcMM_WuzavN5KIbBMRc9VGT-vFns-8ofKeyGKqdI2b4qANXm7qiFoRz1yiB"/>
+<h3 class="text-lg font-semibold text-gray-800 dark:text-white group-hover:text-primary">NLP Advancements</h3>
+<p class="text-sm text-gray-500 dark:text-gray-400">By Jane Doe</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-gray-100 dark:bg-[#111a22] border-t border-gray-200 dark:border-[#233648]">
+<div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-40 flex flex-col sm:flex-row justify-between items-center text-center sm:text-left">
+<p class="text-gray-500 dark:text-gray-400 text-sm">© 2024 TechSphere. All Rights Reserved.</p>
+<div class="flex space-x-6 mt-4 sm:mt-0">
+<a class="text-gray-500 dark:text-gray-400 hover:text-primary" href="#">About</a>
+<a class="text-gray-500 dark:text-gray-400 hover:text-primary" href="#">Contact</a>
+<a class="text-gray-500 dark:text-gray-400 hover:text-primary" href="#">Privacy Policy</a>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>
