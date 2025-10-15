@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { ensureUserInDatabase } from '@/lib/auth-utils'
 
 export async function GET(request: Request) {
@@ -34,6 +35,9 @@ export async function GET(request: Request) {
         console.log('No user found after auth exchange')
       }
 
+      // Revalidate the dashboard path to ensure fresh data
+      revalidatePath('/dashboard')
+      
       const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === 'development'
       if (isLocalEnv) {
