@@ -62,6 +62,7 @@ export const posts = pgTable('posts', {
   slug: varchar('slug', { length: 250 }).notNull().unique(),
   content: text('content').notNull(),
   excerpt: text('excerpt'), // Optional: short preview text
+  imageUrl: text('image_url'), // Optional: featured image URL
   
   // Author Information
   authorId: uuid('author_id')
