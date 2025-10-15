@@ -9,20 +9,26 @@ import { db } from '@/server/db'
 export default async function DashboardPage() {
   // Create server-side tRPC caller
   const supabase = await createClient();
-  const caller = appRouter.createCaller({ db, supabase });
-
-  // Fetch dashboard stats
+  
+  // First, verify the user session is available
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  
+  // Initialize default stats
   let stats = {
     totalPosts: 0,
     publishedPosts: 0,
     categories: 0,
   };
 
-  try {
-    stats = await caller.user.getDashboardStats();
-  } catch (error) {
-    // If user is not authenticated or error occurs, use default values
-    console.error('Error fetching dashboard stats:', error);
+  // Only fetch stats if user is authenticated
+  if (user && !authError) {
+    try {
+      const caller = appRouter.createCaller({ db, supabase });
+      stats = await caller.user.getDashboardStats();
+    } catch (error) {
+      // If error occurs, use default values
+      console.error('Error fetching dashboard stats:', error);
+    }
   }
   return (
     <div className="space-y-8">

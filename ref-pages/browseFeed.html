@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MyBlog - A Multi-User Blogging Platform</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1173d4",
+                        "background-light": "#f8f9fa",
+                        "background-dark": "#101922",
+                    },
+                    fontFamily: {
+                        "display": ["Work Sans", "Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings:
+            'FILL' 0,
+            'wght' 400,
+            'GRAD' 0,
+            'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-gray-200 dark:border-b-[#233648] px-10 py-3 sticky top-0 bg-background-light dark:bg-background-dark z-10">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-gray-800 dark:text-white">
+<div class="size-4">
+<svg class="text-primary" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M39.475 21.6262C40.358 21.4363 40.6863 21.5589 40.7581 21.5934C40.7876 21.655 40.8547 21.857 40.8082 22.3336C40.7408 23.0255 40.4502 24.0046 39.8572 25.2301C38.6799 27.6631 36.5085 30.6631 33.5858 33.5858C30.6631 36.5085 27.6632 38.6799 25.2301 39.8572C24.0046 40.4502 23.0255 40.7407 22.3336 40.8082C21.8571 40.8547 21.6551 40.7875 21.5934 40.7581C21.5589 40.6863 21.4363 40.358 21.6262 39.475C21.8562 38.4054 22.4689 36.9657 23.5038 35.2817C24.7575 33.2417 26.5497 30.9744 28.7621 28.762C30.9744 26.5497 33.2417 24.7574 35.2817 23.5037C36.9657 22.4689 38.4054 21.8562 39.475 21.6262ZM4.41189 29.2403L18.7597 43.5881C19.8813 44.7097 21.4027 44.9179 22.7217 44.7893C24.0585 44.659 25.5148 44.1631 26.9723 43.4579C29.9052 42.0387 33.2618 39.5667 36.4142 36.4142C39.5667 33.2618 42.0387 29.9052 43.4579 26.9723C44.1631 25.5148 44.659 24.0585 44.7893 22.7217C44.9179 21.4027 44.7097 19.8813 43.5881 18.7597L29.2403 4.41187C27.8527 3.02428 25.8765 3.02573 24.2861 3.36776C22.6081 3.72863 20.7334 4.58419 18.8396 5.74801C16.4978 7.18716 13.9881 9.18353 11.5858 11.5858C9.18354 13.988 7.18717 16.4978 5.74802 18.8396C4.58421 20.7334 3.72865 22.6081 3.36778 24.2861C3.02574 25.8765 3.02429 27.8527 4.41189 29.2403Z" fill="currentColor" fill-rule="evenodd"></path>
+</svg>
+</div>
+<h2 class="text-gray-800 dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">MyBlog</h2>
+</div>
+<div class="flex items-center gap-9">
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal" href="#">Home</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal" href="#">About</a>
+<a class="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary text-sm font-medium leading-normal" href="#">Contact</a>
+</div>
+</div>
+<div class="flex flex-1 justify-end gap-4">
+<label class="flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+<div class="text-gray-400 dark:text-[#92adc9] flex border border-gray-300 dark:border-[#233648] bg-white dark:bg-[#233648] items-center justify-center pl-4 rounded-l-lg border-r-0" data-icon="MagnifyingGlass" data-size="24px" data-weight="regular">
+<span class="material-symbols-outlined">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-gray-800 dark:text-white focus:outline-0 focus:ring-0 border border-gray-300 dark:border-[#233648] bg-white dark:bg-[#233648] focus:border-primary h-full placeholder:text-gray-400 dark:placeholder:text-[#92adc9] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal" placeholder="Search articles..." value=""/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors">
+<span class="truncate">Sign In</span>
+</button>
+<button class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-gray-200 dark:bg-[#233648] text-gray-800 dark:text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-gray-300 dark:hover:bg-[#2e4257] transition-colors">
+<span class="material-symbols-outlined text-gray-800 dark:text-white">dark_mode</span>
+</button>
+</div>
+</div>
+</header>
+<main class="px-40 flex flex-1 justify-center py-5">
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+<div class="flex flex-wrap justify-between gap-3 p-4">
+<p class="text-gray-900 dark:text-white text-4xl font-black leading-tight tracking-[-0.033em] min-w-72">Blog Posts</p>
+</div>
+<div class="flex gap-3 p-3 flex-wrap pr-4 border-b border-gray-200 dark:border-b-[#233648] mb-6">
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-primary text-white pl-4 pr-4 cursor-pointer">
+<p class="text-sm font-medium leading-normal">All</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-gray-200 dark:bg-[#233648] text-gray-800 dark:text-white pl-4 pr-4 cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">
+<p class="text-sm font-medium leading-normal">Technology</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-gray-200 dark:bg-[#233648] text-gray-800 dark:text-white pl-4 pr-4 cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">
+<p class="text-sm font-medium leading-normal">Lifestyle</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-gray-200 dark:bg-[#233648] text-gray-800 dark:text-white pl-4 pr-4 cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">
+<p class="text-sm font-medium leading-normal">Business</p>
+</div>
+<div class="flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-gray-200 dark:bg-[#233648] text-gray-800 dark:text-white pl-4 pr-4 cursor-pointer hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">
+<p class="text-sm font-medium leading-normal">Travel</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
+<div class="flex flex-col gap-4 rounded-lg bg-white dark:bg-[#1a2b3a] p-4 shadow-md hover:shadow-lg dark:hover:shadow-primary/20 transition-shadow duration-300">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="Abstract image representing AI and web development" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBnnG2IBIe401tRUjOwhogPUkbl_k7DTpTImwGU66d5gbuADbud7DPvxewCTxKcLBNEwX9JVRYYu2cWfcV_l4pVc18PgLDtMNxh3KnI9U18td1aCF1Xik7PjxW8lLje3X2ztQrsZL-PiXdXBgHqdIUsM9j83PEpnkvc12LF_Jz658V0k8mqr2PIz__Mvg3Onj7lVhw6X6D-lks00KOz_rgPpgePEEqU_RG590spd0elQ1q-6WjTz12vzaGogMV-PTqAVXS1v-eh5C5q");'></div>
+<div class="flex flex-col gap-2">
+<p class="text-gray-500 dark:text-[#92adc9] text-sm font-normal leading-normal">John Doe - June 15, 2024</p>
+<p class="text-gray-900 dark:text-white text-xl font-bold leading-tight hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">The Future of AI in Web Development</p>
+<p class="text-gray-600 dark:text-[#92adc9] text-sm font-normal leading-normal">Discover how artificial intelligence is revolutionizing the landscape of web development, from automated coding to personalized user experiences.</p>
+</div>
+</div>
+<div class="flex flex-col gap-4 rounded-lg bg-white dark:bg-[#1a2b3a] p-4 shadow-md hover:shadow-lg dark:hover:shadow-primary/20 transition-shadow duration-300">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="A person jogging in a park" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDsav5Z420jZpJKawczwwQpNsEyNKGhwkOWE_DggSUDuMreIXqZ_Ou0Ns56eNbELLYmfx5RUaRQOVXo8WRjRKD0_ha_wnfRWSHpRTvq3apnbK3PF8bnfrhI5f4rD9TdGbb4EMX1cRTVzGjVM1hzLz7iv3DPPJ1QvdTFCWwGLpZXoj5gpKe7pJ1Td3zqwfslrvQdV4hZ6VRpGhai1kEL-G8qc5AGwWjfiF2ZiEgsrmcQTE8kIY7u_TM76LbQO9uCtBeOs4iiaDhCvRe3");'></div>
+<div class="flex flex-col gap-2">
+<p class="text-gray-500 dark:text-[#92adc9] text-sm font-normal leading-normal">Jane Smith - June 14, 2024</p>
+<p class="text-gray-900 dark:text-white text-xl font-bold leading-tight hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">10 Tips for a Healthier Lifestyle</p>
+<p class="text-gray-600 dark:text-[#92adc9] text-sm font-normal leading-normal">Simple and effective tips to help you lead a healthier and more balanced life, focusing on diet, exercise, and mental well-being.</p>
+</div>
+</div>
+<div class="flex flex-col gap-4 rounded-lg bg-white dark:bg-[#1a2b3a] p-4 shadow-md hover:shadow-lg dark:hover:shadow-primary/20 transition-shadow duration-300">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="A modern office with people working" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB95YpPjDF0iBbGGKKn6WWxz5rk4qN0pAHKGrYogsGuU4Wg2qWqTjnTNq7V4vFoHrIMcVxcGzesLwu-XnxYfVLlAt75PgMxwQDcXQt90vTSe-4WMXRbuoS4KCVTmkexja9AyqaG1UBYlBIdVvgYTfsUl0c4z1NQzXDm1fYT3GGEXpsCIrw6v-zjEheVS2AzzVlAkRnGzkARq0_47JLQJ4xVIkjun5LIB6mYxuBZ00dRXbXyyPAiX0iW29l9C4H7vGTajRbYIO1zAnXr");'></div>
+<div class="flex flex-col gap-2">
+<p class="text-gray-500 dark:text-[#92adc9] text-sm font-normal leading-normal">Mike Johnson - June 12, 2024</p>
+<p class="text-gray-900 dark:text-white text-xl font-bold leading-tight hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Growing Your Small Business in 2024</p>
+<p class="text-gray-600 dark:text-[#92adc9] text-sm font-normal leading-normal">Key strategies and insights for small business owners to thrive in the competitive market of 2024.</p>
+</div>
+</div>
+<div class="flex flex-col gap-4 rounded-lg bg-white dark:bg-[#1a2b3a] p-4 shadow-md hover:shadow-lg dark:hover:shadow-primary/20 transition-shadow duration-300">
+<div class="w-full bg-center bg-no-repeat aspect-video bg-cover rounded-lg" data-alt="A person with a backpack looking at a mountain range" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAOGegxo53mmwvmQwfGwUpF1m1Rovo5SBBhwhvrdSoWkkHYrzuf3Sx6blEDXt3XiaGbC1Qd5oXPUmMnuFLYWpa5HAUJbaekQ2JDdSygw6G6V17nntMhF-T6HSYvMJf4G3-eleWBVZ9-rHwUv1ua2uXPlaeVWKcbwkUF1ho8hUSp5AmxNoxVnAck-Ooo2nvtNaMkHv0arbfUwkCrBZUUHUDauQl9W34JRV5e_y8eVW4S8XJCFYVvqmapVmYi1Xsd7yyVk5DB5EX7poxp");'></div>
+<div class="flex flex-col gap-2">
+<p class="text-gray-500 dark:text-[#92adc9] text-sm font-normal leading-normal">Emily Williams - June 10, 2024</p>
+<p class="text-gray-900 dark:text-white text-xl font-bold leading-tight hover:text-primary dark:hover:text-primary transition-colors cursor-pointer">Top 5 Travel Destinations for Summer</p>
+<p class="text-gray-600 dark:text-[#92adc9] text-sm font-normal leading-normal">Explore breathtaking destinations perfect for your summer getaway. From tropical beaches to historic cities, find your next adventure.</p>
+</div>
+</div>
+</div>
+<div class="flex justify-center items-center gap-4 mt-8 p-4">
+<button class="flex items-center justify-center h-10 w-10 rounded-lg bg-gray-200 dark:bg-[#233648] text-gray-600 dark:text-white hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-lg bg-primary text-white">1</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-lg bg-gray-200 dark:bg-[#233648] text-gray-600 dark:text-white hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">2</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-lg bg-gray-200 dark:bg-[#233648] text-gray-600 dark:text-white hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">3</button>
+<button class="flex items-center justify-center h-10 w-10 rounded-lg bg-gray-200 dark:bg-[#233648] text-gray-600 dark:text-white hover:bg-primary/20 dark:hover:bg-primary/30 transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>
