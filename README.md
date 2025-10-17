@@ -1,4 +1,4 @@
-# Blogify - Modern Blogging Platform
+# Kaypbara — Modern Blogging Platform
 
 A beautiful, modern blogging platform with Google SSO authentication, built with Next.js 15, TypeScript, tRPC, Drizzle ORM, and Supabase.
 
@@ -26,6 +26,37 @@ A beautiful, modern blogging platform with Google SSO authentication, built with
 - [x] Dashboard interface
 - [x] Public blog listing
 - [x] Modern UI with custom design system
+
+## 📄 PRD
+
+See the full Product Requirements Document: `.cursor/rules/prd.md`
+
+## 🗺️ Roadmap (from PRD)
+
+Derived from `.cursor/rules/prd.md`.
+
+### P1 — Must Have
+- [x] Post CRUD: validation (title/content), slug updates on title change
+- [x] Categories: unique name validation, slug auto-generation
+- [x] Post–Category many-to-many: cascade delete integrity
+- [x] List/detail: include metadata (created/updated), fetch by slug
+
+### P2 — Should Have
+- [x] Landing page sections (Hero, Features, Footer)
+- [x] Dashboard: overview stats, recent posts, quick actions
+- [x] Draft/Published toggle; filter by status
+- [x] Enhanced UX: skeleton loaders, spinners, empty states
+- [ ] Error handling: toasts, inline form errors
+- [x] Markdown editor: preview toggle, basic syntax, local draft state
+
+### P3 — Nice to Have
+- [ ] Full 5-section landing page
+- [ ] Search
+- [ ] Post stats (reading time, word count)
+- [x] Dark mode
+- [x] Image uploads
+- [ ] SEO meta tags
+- [x] Pagination
 
 ## 🛠️ Setup Instructions
 

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Plus, Edit, Trash2, Eye, FileText } from 'lucide-react';
 import { trpc } from '@/lib/trpc/client';
 import { createClient } from '@/lib/supabase/client';
@@ -11,6 +13,12 @@ import { createClient } from '@/lib/supabase/client';
 export default function PostsPage() {
   const [filter, setFilter] = useState<'all' | 'published' | 'drafts'>('all');
   const [userId, setUserId] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingPostId, setEditingPostId] = useState<string | null>(null);
+  const [formTitle, setFormTitle] = useState('');
+  const [formExcerpt, setFormExcerpt] = useState('');
+  const [formContent, setFormContent] = useState('');
+  const [formImageUrl, setFormImageUrl] = useState('');
   const supabase = createClient();
 
   useEffect(() => {
@@ -23,6 +31,7 @@ export default function PostsPage() {
     getUser();
   }, [supabase]);
   
+  const utils = trpc.useUtils();
   const { data: posts, isLoading, error } = trpc.post.getAll.useQuery({
     published: filter === 'all' ? undefined : filter === 'published',
     authorId: userId ?? undefined,
@@ -32,6 +41,45 @@ export default function PostsPage() {
   });
 
   const deletePost = trpc.post.delete.useMutation();
+  const updatePost = trpc.post.update.useMutation({
+    onSuccess: async () => {
+      await utils.post.getAll.invalidate();
+      setIsEditing(false);
+      setEditingPostId(null);
+    },
+  });
+
+  const openEdit = (postId: string) => {
+    const p = posts?.find(x => x.id === postId);
+    if (!p) return;
+    setEditingPostId(postId);
+    setFormTitle(p.title ?? '');
+    setFormExcerpt(p.excerpt ?? '');
+    setFormContent(p.content ?? '');
+    setFormImageUrl(p.imageUrl ?? '');
+    setIsEditing(true);
+  };
+
+  const cancelEdit = () => {
+    setIsEditing(false);
+    setEditingPostId(null);
+  };
+
+  const saveEdit = async () => {
+    if (!editingPostId) return;
+    try {
+      await updatePost.mutateAsync({
+        id: editingPostId,
+        title: formTitle,
+        excerpt: formExcerpt || undefined,
+        content: formContent,
+        imageUrl: formImageUrl || undefined,
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error(e);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this post?')) {
@@ -81,6 +129,7 @@ export default function PostsPage() {
   }
 
   return (
+    <>
     <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -154,12 +203,10 @@ export default function PostsPage() {
                       View
                     </Button>
                   </Link>
-                  <Link href={`/posts/${post.id}/edit`}>
-                    <Button variant="outline" size="sm">
-                      <Edit className="mr-1 h-3 w-3" />
-                      Edit
-                    </Button>
-                  </Link>
+                  <Button variant="outline" size="sm" onClick={() => openEdit(post.id)}>
+                    <Edit className="mr-1 h-3 w-3" />
+                    Edit
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -192,5 +239,41 @@ export default function PostsPage() {
         </Card>
       )}
     </div>
+
+      {/* Edit Modal */}
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl">
+            <h2 className="mb-4 text-xl font-semibold">Edit Post</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Title</label>
+                <Input value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Excerpt</label>
+                <Input value={formExcerpt} onChange={(e) => setFormExcerpt(e.target.value)} />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Image URL</label>
+                <Input value={formImageUrl} onChange={(e) => setFormImageUrl(e.target.value)} />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-gray-700">Content</label>
+                <Textarea rows={8} value={formContent} onChange={(e) => setFormContent(e.target.value)} />
+              </div>
+            </div>
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <Button variant="outline" onClick={cancelEdit} disabled={updatePost.isPending}>
+                Cancel
+              </Button>
+              <Button onClick={saveEdit} disabled={updatePost.isPending}>
+                {updatePost.isPending ? 'Saving…' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
