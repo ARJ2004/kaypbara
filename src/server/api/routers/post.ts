@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { router, publicProcedure, protectedProcedure } from '../trpc';
-import { db } from '../../db';
+// Removed global db import; use ctx.db for request-scoped DB
 import { posts, postCategories } from '../../db/schema';
 import { eq, and, desc } from 'drizzle-orm';
 import { createPostSchema, updatePostSchema, getPostsSchema, getPostBySlugSchema } from '../../lib/validators';
@@ -32,6 +32,7 @@ export const postRouter = router({
             slug: posts.slug,
             content: posts.content,
             excerpt: posts.excerpt,
+            imageUrl: posts.imageUrl,
             published: posts.published,
             createdAt: posts.createdAt,
             updatedAt: posts.updatedAt,
@@ -50,6 +51,7 @@ export const postRouter = router({
           slug: posts.slug,
           content: posts.content,
           excerpt: posts.excerpt,
+          imageUrl: posts.imageUrl,
           published: posts.published,
           createdAt: posts.createdAt,
           updatedAt: posts.updatedAt,
@@ -62,11 +64,21 @@ export const postRouter = router({
 
   getBySlug: publicProcedure
     .input(getPostBySlugSchema)
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { slug } = input;
       
-      const result = await db
-        .select()
+      const result = await ctx.db
+        .select({
+          id: posts.id,
+          title: posts.title,
+          slug: posts.slug,
+          content: posts.content,
+          excerpt: posts.excerpt,
+          imageUrl: posts.imageUrl,
+          published: posts.published,
+          createdAt: posts.createdAt,
+          updatedAt: posts.updatedAt,
+        })
         .from(posts)
         .where(eq(posts.slug, slug))
         .limit(1);
@@ -77,7 +89,7 @@ export const postRouter = router({
   create: protectedProcedure
     .input(createPostSchema)
     .mutation(async ({ input, ctx }) => {
-      const { title, content, excerpt, published, categoryIds } = input;
+      const { title, content, excerpt, imageUrl, published, categoryIds } = input;
       const slug = slugify(title);
 
       // Ensure author exists in our local users table (FK constraint)
@@ -94,6 +106,7 @@ export const postRouter = router({
           slug,
           content,
           excerpt,
+          imageUrl: imageUrl || null,
           published,
           authorId: ctx.user.id,
         })
@@ -115,7 +128,7 @@ export const postRouter = router({
   update: protectedProcedure
     .input(updatePostSchema)
     .mutation(async ({ input, ctx }) => {
-      const { id, title, content, excerpt, published, categoryIds } = input;
+      const { id, title, content, excerpt, imageUrl, published, categoryIds } = input;
       
       const updateData: any = {};
       if (title) {
@@ -124,6 +137,7 @@ export const postRouter = router({
       }
       if (content) updateData.content = content;
       if (excerpt !== undefined) updateData.excerpt = excerpt;
+      if (imageUrl !== undefined) updateData.imageUrl = imageUrl || null;
       if (published !== undefined) updateData.published = published;
       updateData.updatedAt = new Date();
 

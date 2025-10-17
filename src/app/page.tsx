@@ -21,8 +21,7 @@ export default function HomePage() {
             <div className="hidden md:flex flex-1 justify-center gap-8">
               <a className="text-text-light dark:text-text-dark text-sm font-medium leading-normal hover:text-primary" href="#">Home</a>
               <a className="text-text-light dark:text-text-dark text-sm font-medium leading-normal hover:text-primary" href="#features">Features</a>
-              <a className="text-text-light dark:text-text-dark text-sm font-medium leading-normal hover:text-primary" href="#">Pricing</a>
-              <a className="text-text-light dark:text-text-dark text-sm font-medium leading-normal hover:text-primary" href="#">Blog</a>
+              <a className="text-text-light dark:text-text-dark text-sm font-medium leading-normal hover:text-primary" href="/feed">Blog</a>
             </div>
             <div className="flex gap-2">
               <Link href="/login">
