@@ -4,6 +4,7 @@ export const createPostSchema = z.object({
   title: z.string().min(1).max(200),
   content: z.string().min(1),
   excerpt: z.string().max(500).optional(),
+  imageUrl: z.string().url().optional().or(z.literal('')),
   published: z.boolean().default(false),
   categoryIds: z.array(z.string().uuid()),
 });
@@ -13,6 +14,7 @@ export const updatePostSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   content: z.string().min(1).optional(),
   excerpt: z.string().max(500).optional(),
+  imageUrl: z.string().url().optional().or(z.literal('')),
   published: z.boolean().optional(),
   categoryIds: z.array(z.string().uuid()).optional(),
 });
