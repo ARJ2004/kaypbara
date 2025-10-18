@@ -35,10 +35,14 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Check if this is the home page with an OAuth code parameter
+  const isHomeWithCode = request.nextUrl.pathname === '/' && request.nextUrl.searchParams.has('code')
+
   if (
     !user &&
     !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
+    !request.nextUrl.pathname.startsWith('/auth') &&
+    !isHomeWithCode
   ) {
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
