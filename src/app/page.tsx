@@ -1,8 +1,29 @@
-import React from 'react'
+'use client'
+
+import React, { useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { useSearchParams, useRouter } from 'next/navigation'
 
-export default function HomePage() {
+function OAuthRedirectHandler() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+
+  useEffect(() => {
+    // Check if there's a code parameter from OAuth redirect
+    const code = searchParams.get('code')
+    if (code) {
+      // Redirect to the auth callback with the dashboard as the next destination
+      const currentParams = new URLSearchParams(searchParams.toString())
+      currentParams.set('next', '/dashboard')
+      router.replace(`/auth/callback?${currentParams.toString()}`)
+    }
+  }, [searchParams, router])
+
+  return null
+}
+
+function HomePageContent() {
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
       <div className="layout-container flex h-full grow flex-col">
@@ -159,5 +180,16 @@ export default function HomePage() {
         </footer>
       </div>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <OAuthRedirectHandler />
+      </Suspense>
+      <HomePageContent />
+    </>
   )
 }
