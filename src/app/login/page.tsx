@@ -12,10 +12,21 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true)
     try {
+      // Determine the proper redirect URL
+      const redirectUrl = (() => {
+        // Use NEXT_PUBLIC_APP_URL if it's set and not localhost
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL
+        if (appUrl && !appUrl.includes('localhost')) {
+          return `${appUrl}/auth/callback?next=/dashboard`
+        }
+        // Fallback to current origin
+        return window.location.origin + "/auth/callback?next=/dashboard"
+      })()
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin + "/auth/callback?next=/dashboard",
+          redirectTo: redirectUrl,
         },
       })
       if (error) {
