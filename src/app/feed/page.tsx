@@ -31,7 +31,7 @@ export default function FeedPage() {
   const startIndex = (currentPage - 1) * postsPerPage
   const displayedPosts = filteredPosts?.slice(startIndex, startIndex + postsPerPage)
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | string) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'long',
       day: 'numeric',
