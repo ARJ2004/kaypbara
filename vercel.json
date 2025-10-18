@@ -1,0 +1,53 @@
+
+{
+    "framework": "nextjs",
+    "buildCommand": "npm run build",
+    "installCommand": "npm install",
+    "functions": {
+      "src/app/api/trpc/[trpc]/route.ts": {
+        "maxDuration": 30
+      },
+      "src/app/auth/callback/route.ts": {
+        "maxDuration": 30
+      }
+    },
+    "headers": [
+      {
+        "source": "/api/trpc/(.*)",
+        "headers": [
+          {
+            "key": "Access-Control-Allow-Origin",
+            "value": "*"
+          },
+          {
+            "key": "Access-Control-Allow-Methods",
+            "value": "GET, POST, PUT, DELETE, OPTIONS"
+          },
+          {
+            "key": "Access-Control-Allow-Headers",
+            "value": "Content-Type, Authorization, X-Requested-With"
+          }
+        ]
+      },
+      {
+        "source": "/(.*)",
+        "headers": [
+          {
+            "key": "X-Content-Type-Options",
+            "value": "nosniff"
+          },
+          {
+            "key": "X-Frame-Options",
+            "value": "DENY"
+          },
+          {
+            "key": "X-XSS-Protection",
+            "value": "1; mode=block"
+          }
+        ]
+      }
+    ],
+    "regions": ["iad1", "sfo1"],
+    "crons": []
+  }
+  
