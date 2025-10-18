@@ -47,7 +47,6 @@
         ]
       }
     ],
-    "regions": ["iad1", "sfo1"],
     "crons": []
   }
   
