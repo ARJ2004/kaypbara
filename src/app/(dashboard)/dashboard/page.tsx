@@ -26,8 +26,15 @@ export default async function DashboardPage() {
       const caller = appRouter.createCaller({ db, supabase });
       stats = await caller.user.getDashboardStats();
     } catch (error) {
-      // If error occurs, use default values
+      // If error occurs, use default values and log detailed error
       console.error('Error fetching dashboard stats:', error);
+      
+      // Check if it's a database connection error
+      if (error instanceof Error && error.message.includes('ENOTFOUND')) {
+        console.error('Database connection failed - check your network connection and Supabase configuration');
+      } else if (error instanceof Error && error.message.includes('Failed query')) {
+        console.error('Database query failed - check your database schema and permissions');
+      }
     }
   }
   return (
