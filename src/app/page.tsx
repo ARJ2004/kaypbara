@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, Suspense } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { useSearchParams, useRouter } from 'next/navigation'
 
-export default function HomePage() {
+function OAuthRedirectHandler() {
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -19,6 +19,11 @@ export default function HomePage() {
       router.replace(`/auth/callback?${currentParams.toString()}`)
     }
   }, [searchParams, router])
+
+  return null
+}
+
+function HomePageContent() {
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
       <div className="layout-container flex h-full grow flex-col">
@@ -175,5 +180,16 @@ export default function HomePage() {
         </footer>
       </div>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <OAuthRedirectHandler />
+      </Suspense>
+      <HomePageContent />
+    </>
   )
 }
