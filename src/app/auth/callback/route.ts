@@ -38,16 +38,31 @@ export async function GET(request: Request) {
       // Revalidate the dashboard path to ensure fresh data
       revalidatePath('/dashboard')
       
-      const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
+      // Handle redirect URL properly for production
+      const forwardedHost = request.headers.get('x-forwarded-host')
+      const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
       const isLocalEnv = process.env.NODE_ENV === 'development'
+      
+      let redirectUrl: string
+      
       if (isLocalEnv) {
-        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`)
+        // In development, use the origin directly
+        redirectUrl = `${origin}${next}`
       } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
+        // In production with load balancer, use forwarded host
+        redirectUrl = `${forwardedProto}://${forwardedHost}${next}`
       } else {
-        return NextResponse.redirect(`${origin}${next}`)
+        // Fallback: try to use NEXT_PUBLIC_APP_URL or origin
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL
+        if (appUrl && appUrl !== 'http://localhost:3000') {
+          redirectUrl = `${appUrl}${next}`
+        } else {
+          redirectUrl = `${origin}${next}`
+        }
       }
+      
+      console.log('Redirecting to:', redirectUrl)
+      return NextResponse.redirect(redirectUrl)
     } else {
       console.error('Auth exchange error:', error)
     }
