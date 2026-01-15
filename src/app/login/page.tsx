@@ -12,7 +12,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true)
     try {
-      // Determine the proper redirect URL
+      // Determine the proper redirect URL ##
       const redirectUrl = (() => {
         // Use NEXT_PUBLIC_APP_URL if it's set and not localhost
         const appUrl = process.env.NEXT_PUBLIC_APP_URL
